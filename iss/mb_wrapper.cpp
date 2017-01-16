@@ -17,6 +17,12 @@ static const sc_core::sc_time PERIOD(20, sc_core::SC_NS);
 
 using namespace std;
 
+void MBWrapper::method(void){
+	dont_initialize();
+	m_iss.setIrq(true);
+//faire l'histoire du compteur ici ou dans m_iss
+}
+
 MBWrapper::MBWrapper(sc_core::sc_module_name name)
     : sc_core::sc_module(name), irq("irq"),
       m_iss(0) /* identifier, not very useful since we have only one instance */
@@ -24,6 +30,8 @@ MBWrapper::MBWrapper(sc_core::sc_module_name name)
 	m_iss.reset();
 	m_iss.setIrq(false);
 	SC_THREAD(run_iss);
+	SC_METHOD(method);
+	sensitive << irq;
 }
 
 

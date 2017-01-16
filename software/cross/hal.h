@@ -38,6 +38,13 @@ void write_mem(uint32_t addr, uint32_t data){
 	*ptr = data;
 }
 /* printf is disabled, for now ... */
-#define printf(...) NULL
+#define printf our_print
+
+void our_print(char* str){
+	int i;
+	for(i = 0; str[i] != '\0' ; i++){
+		write_mem(UART_BASEADDR + 0x04, str[i]);
+	}
+}
 
 #endif /* HAL_H */

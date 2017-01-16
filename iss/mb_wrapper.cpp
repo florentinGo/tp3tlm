@@ -35,9 +35,10 @@ void MBWrapper::exec_data_request(enum iss_t::DataAccessType mem_type,
 	case iss_t::READ_WORD: {
 		/* The ISS requested a data read
 		   (mem_addr into localbuf). */
-		status = socket.read(mem_addr,localbuf);
+		//std::cout << "test word" << std::endl;
+		status = socket.read(mem_addr, localbuf);
 		if(status != tlm::TLM_OK_RESPONSE){
-			std::cerr << "erreur de read" <<std::endl;
+			std::cerr << "erreur de read" << std::endl;
 		}
 		localbuf = uint32_machine_to_be(localbuf);
 
@@ -47,7 +48,23 @@ void MBWrapper::exec_data_request(enum iss_t::DataAccessType mem_type,
 #endif
 		m_iss.setDataResponse(0, localbuf);
 	} break;
-	case iss_t::READ_BYTE:
+	case iss_t::READ_BYTE: { 
+		//std::cout << "test byte" << std::endl;
+		uint32_t pre_addr = (mem_addr - (mem_addr % 4));// (mem_addr / 4) * 4;
+		status = socket.read(pre_addr, localbuf);
+		localbuf = uint32_machine_to_be(localbuf); //traitement qui suit se fait sur du litle-endian
+		localbuf = localbuf >> (mem_addr % 4) * 8; // décalage 8*n
+		localbuf = localbuf & 0x000000FF; // octet de poid faible
+		if(status != tlm::TLM_OK_RESPONSE){
+			std::cerr << "erreur de read_byte" << std::endl;
+		}
+		
+#ifdef DEBUG
+		std::cout << hex << "read    " << setw(10) << localbuf
+		          << " at address " << mem_addr << std::endl;
+#endif
+		m_iss.setDataResponse(0, localbuf);
+	} break;
 	case iss_t::WRITE_HALF:
 	case iss_t::WRITE_BYTE:
 	case iss_t::READ_HALF:
@@ -62,9 +79,9 @@ void MBWrapper::exec_data_request(enum iss_t::DataAccessType mem_type,
 		/* The ISS requested a data write
 		   (mem_wdata at mem_addr). */
 		mem_wdata = uint32_be_to_machine(mem_wdata);
-		status = socket.write(mem_addr,mem_wdata);
+		status = socket.write(mem_addr, mem_wdata);
 		if(status != tlm::TLM_OK_RESPONSE){
-			std::cerr << "erreur de write" <<std::endl;
+			std::cerr << "erreur de write" << std::endl;
 		}
 #ifdef DEBUG
 		std::cout << hex << "wrote   " << setw(10) << mem_wdata
@@ -95,12 +112,12 @@ void MBWrapper::run_iss(void) {
 				/* The ISS requested an instruction.
 				 * We have to do the instruction fetch
 				 * by reading from memory. */
-				//abort(); // TODO
 				uint32_t localbuf;
-				status = socket.read(ins_addr,localbuf);
+				status = socket.read(ins_addr, localbuf);
 				if(status != tlm::TLM_OK_RESPONSE){
-					std::cerr << "erreur de fetch" <<std::endl;
+					std::cerr << "erreur de fetch" << std::endl;
 				}
+				localbuf = uint32_machine_to_be(localbuf);
 				m_iss.setInstruction(0, localbuf);
 
 			}

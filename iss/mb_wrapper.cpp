@@ -49,7 +49,6 @@ void MBWrapper::exec_data_request(enum iss_t::DataAccessType mem_type,
 		m_iss.setDataResponse(0, localbuf);
 	} break;
 	case iss_t::READ_BYTE: { 
-		//std::cout << "test byte" << std::endl;
 		uint32_t pre_addr = (mem_addr - (mem_addr % 4));// (mem_addr / 4) * 4;
 		status = socket.read(pre_addr, localbuf);
 		localbuf = uint32_machine_to_be(localbuf); //traitement qui suit se fait sur du litle-endian

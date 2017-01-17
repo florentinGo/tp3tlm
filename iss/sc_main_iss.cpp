@@ -32,7 +32,6 @@ int sc_main(int, char **) {
 	Vga vga("vga");
 	Intc intc("intc");
 	Gpio gpio("gpio");
-	
 	UART uart("uart");
 
 
@@ -59,7 +58,7 @@ int sc_main(int, char **) {
 	// initiators
 	cpu.socket.bind(bus.target);
 	vga.initiator(bus.target);
-	
+
 
 	// targets
 	// bus.initiator(data_ram.target);
@@ -68,9 +67,8 @@ int sc_main(int, char **) {
 	bus.initiator(timer.target);
 	bus.initiator(gpio.target);
 	bus.initiator(intc.target);
-
 	bus.initiator(uart.target);
-	
+
 	// interrupts
 	vga.irq(vga_irq);
 	timer.irq(timer_irq);
@@ -86,7 +84,6 @@ int sc_main(int, char **) {
 	bus.map(gpio.target, GPIO_BASEADDR, GPIO_SIZE);
 	bus.map(timer.target, TIMER_BASEADDR, TIMER_SIZE);
 	bus.map(intc.target, INTC_BASEADDR, INTC_SIZE);
-	
 	bus.map(uart.target, UART_BASEADDR, UART_SIZE);
 
 

@@ -17,10 +17,9 @@ static const sc_core::sc_time PERIOD(20, sc_core::SC_NS);
 
 using namespace std;
 
-void MBWrapper::method(void){
-	dont_initialize();
-	m_iss.setIrq(true);
-//faire l'histoire du compteur ici ou dans m_iss
+void MBWrapper::switchIrq(void){
+	if (irq.posedge())
+		m_iss.setIrq(true);
 }
 
 MBWrapper::MBWrapper(sc_core::sc_module_name name)
@@ -30,8 +29,9 @@ MBWrapper::MBWrapper(sc_core::sc_module_name name)
 	m_iss.reset();
 	m_iss.setIrq(false);
 	SC_THREAD(run_iss);
-	SC_METHOD(method);
-	sensitive << irq;
+	SC_METHOD(switchIrq);
+	sensitive << irq.pos();
+	dont_initialize();
 }
 
 
@@ -43,9 +43,8 @@ void MBWrapper::exec_data_request(enum iss_t::DataAccessType mem_type,
 	case iss_t::READ_WORD: {
 		/* The ISS requested a data read
 		   (mem_addr into localbuf). */
-		//std::cout << "test word" << std::endl;
 		status = socket.read(mem_addr, localbuf);
-		if(status != tlm::TLM_OK_RESPONSE){
+		if (status != tlm::TLM_OK_RESPONSE){
 			std::cerr << "erreur de read" << std::endl;
 		}
 		localbuf = uint32_machine_to_be(localbuf);
@@ -56,16 +55,16 @@ void MBWrapper::exec_data_request(enum iss_t::DataAccessType mem_type,
 #endif
 		m_iss.setDataResponse(0, localbuf);
 	} break;
-	case iss_t::READ_BYTE: { 
+	case iss_t::READ_BYTE: {
 		uint32_t pre_addr = (mem_addr - (mem_addr % 4));// (mem_addr / 4) * 4;
 		status = socket.read(pre_addr, localbuf);
 		localbuf = uint32_machine_to_be(localbuf); //traitement qui suit se fait sur du litle-endian
 		localbuf = localbuf >> (mem_addr % 4) * 8; // décalage 8*n
 		localbuf = localbuf & 0x000000FF; // octet de poid faible
-		if(status != tlm::TLM_OK_RESPONSE){
+		if (status != tlm::TLM_OK_RESPONSE) {
 			std::cerr << "erreur de read_byte" << std::endl;
 		}
-		
+
 #ifdef DEBUG
 		std::cout << hex << "read    " << setw(10) << localbuf
 		          << " at address " << mem_addr << std::endl;
@@ -87,7 +86,7 @@ void MBWrapper::exec_data_request(enum iss_t::DataAccessType mem_type,
 		   (mem_wdata at mem_addr). */
 		mem_wdata = uint32_be_to_machine(mem_wdata);
 		status = socket.write(mem_addr, mem_wdata);
-		if(status != tlm::TLM_OK_RESPONSE){
+		if (status != tlm::TLM_OK_RESPONSE) {
 			std::cerr << "erreur de write" << std::endl;
 		}
 #ifdef DEBUG
@@ -121,7 +120,7 @@ void MBWrapper::run_iss(void) {
 				 * by reading from memory. */
 				uint32_t localbuf;
 				status = socket.read(ins_addr, localbuf);
-				if(status != tlm::TLM_OK_RESPONSE){
+				if (status != tlm::TLM_OK_RESPONSE) {
 					std::cerr << "erreur de fetch" << std::endl;
 				}
 				localbuf = uint32_machine_to_be(localbuf);
@@ -141,8 +140,12 @@ void MBWrapper::run_iss(void) {
 				                  mem_wdata);
 			}
 			m_iss.step();
+			inst_count++;
 		}
-
+		if (inst_count == 5) {
+			inst_count = 0;
+			m_iss.setIrq(false);
+		}
 		wait(PERIOD);
 	}
 }

@@ -14,19 +14,19 @@ extern "C" int main();
 extern "C" void interrupt_handler();
 
 extern "C" void write_mem(uint32_t addr, uint32_t data) {
-	abort(); // TODO
+	NativeWrapper::get_instance()->write_mem(addr, data);
 }
 
 extern "C" unsigned int read_mem(uint32_t addr) {
-	abort(); // TODO
+	NativeWrapper::get_instance()->read_mem(addr);
 }
 
 extern "C" void cpu_relax() {
-	abort(); // TODO
+	NativeWrapper::get_instance()->cpu_relax();
 }
 
 extern "C" void wait_for_irq() {
-	abort(); // TODO
+	NativeWrapper::get_instance()->wait_for_irq();
 }
 
 /* To keep it simple, the soft wrapper is a singleton, we can

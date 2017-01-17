@@ -1,4 +1,4 @@
-DIR = /home/florentin/matieres/5MMMTSP/tlm/microblaze/bin/
+DIR = /home/refaia/ensimag/3A/cours-tlm/microblaze/bin/
 CROSS_COMPILE = $(DIR)microblaze-unknown-linux-gnu-
 TARGET_CC = $(CROSS_COMPILE)gcc
 TARGET_LD = $(CROSS_COMPILE)ld
@@ -31,20 +31,15 @@ sections.txt: $(EXEC)
 $(EXEC): $(OBJS) ldscript
 	$(TARGET_LD) -T  ldscript $^
 
-# dependencies
-#echo "Rule for linking not implemented."; exit 1
-# (use $(TARGET_LD), and use the -T option to point to linker script ldscript)
 
 main.o: $(SRC) $(DEPENDENCIES)
 	$(TARGET_CC) -c $(INCLUDE) $(SRC)
 
-# dependencies
-#echo "Rule for compilation not implemented"; exit 1
 # (compile with target C compiler)
 
 %.o: %.s
 	$(TARGET_AS) $^ -o $@
-# echo "Rule for assembly not implemented"; exit 1
+
 
 .PHONY: clean realclean
 clean:

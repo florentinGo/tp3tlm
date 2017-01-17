@@ -29,12 +29,12 @@
 					* activate interrupts */
 
 uint32_t read_mem(uint32_t addr){
-	volatile uint32_t *ptr = addr;
+	volatile uint32_t *ptr = (uint32_t *)addr;
 	return *ptr;
 }
 
 void write_mem(uint32_t addr, uint32_t data){
-	volatile uint32_t *ptr = addr;
+	volatile uint32_t *ptr = (uint32_t *)addr;
 	*ptr = data;
 }
 /* printf is disabled, for now ... */

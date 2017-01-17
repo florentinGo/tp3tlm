@@ -18,7 +18,7 @@ struct MBWrapper : sc_core::sc_module {
 	sc_core::sc_in<bool> irq;
 
 	void run_iss(void);
-	void method(void);
+	void switchIrq(void);
 
 	SC_CTOR(MBWrapper);
 

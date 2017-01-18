@@ -7,7 +7,7 @@
  */
 #define main __start
 /* Time between two step()s */
-static const sc_core::sc_time PERIOD(20, sc_core::SC_NS);
+static const sc_core::sc_time PERIOD(1, sc_core::SC_MS);
 /* extern "C" is needed since the software is compiled in C and
  * is linked against native_wrapper.cpp, which is compiled in C++.
  */
@@ -45,7 +45,9 @@ NativeWrapper * NativeWrapper::get_instance() {
 NativeWrapper::NativeWrapper(sc_core::sc_module_name name) : sc_module(name),
 							     irq("irq")
 {
-	compute();
+	SC_THREAD(compute);
+	SC_METHOD(interrupt_handler_internal);
+	sensitive << irq.pos();
 }
 
 void NativeWrapper::write_mem(unsigned int addr, unsigned int data) {
@@ -74,9 +76,7 @@ void NativeWrapper::wait_for_irq() {
 }
 
 void NativeWrapper::compute() {
-	SC_THREAD(wait_for_irq);
-	SC_METHOD(interrupt_handler_internal);
-	sensitive << irq.pos();
+	wait_for_irq();
 }
 
 void NativeWrapper::interrupt_handler_internal() {

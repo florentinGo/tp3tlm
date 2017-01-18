@@ -1,3 +1,6 @@
+ifndef CROSS_COMPILE
+CROSS_COMPILE=microblaze-unknown-linux-gnu-
+endif
 DIR = /home/refaia/ensimag/3A/cours-tlm/microblaze/bin/
 CROSS_COMPILE = $(DIR)microblaze-unknown-linux-gnu-
 TARGET_CC = $(CROSS_COMPILE)gcc

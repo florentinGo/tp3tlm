@@ -48,6 +48,7 @@ NativeWrapper::NativeWrapper(sc_core::sc_module_name name) : sc_module(name),
 	SC_THREAD(compute);
 	SC_METHOD(interrupt_handler_internal);
 	sensitive << irq.pos();
+	dont_initialize();
 }
 
 void NativeWrapper::write_mem(unsigned int addr, unsigned int data) {
@@ -69,13 +70,13 @@ void NativeWrapper::cpu_relax() {
 }
 
 void NativeWrapper::wait_for_irq() {
-	main();
 	if (!interrupt)
 		wait(interrupt_event);
 	interrupt = false;
 }
 
 void NativeWrapper::compute() {
+	main();
 	wait_for_irq();
 }
 

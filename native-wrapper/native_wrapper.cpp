@@ -6,7 +6,8 @@
  * by changing the name to something else.
  */
 #define main __start
-
+/* Time between two step()s */
+static const sc_core::sc_time PERIOD(20, sc_core::SC_NS);
 /* extern "C" is needed since the software is compiled in C and
  * is linked against native_wrapper.cpp, which is compiled in C++.
  */
@@ -18,7 +19,8 @@ extern "C" void write_mem(uint32_t addr, uint32_t data) {
 }
 
 extern "C" unsigned int read_mem(uint32_t addr) {
-	NativeWrapper::get_instance()->read_mem(addr);
+	unsigned int data = NativeWrapper::get_instance()->read_mem(addr);
+	return data;
 }
 
 extern "C" void cpu_relax() {
@@ -43,32 +45,44 @@ NativeWrapper * NativeWrapper::get_instance() {
 NativeWrapper::NativeWrapper(sc_core::sc_module_name name) : sc_module(name),
 							     irq("irq")
 {
+	compute();
 }
 
-void NativeWrapper::write_mem(unsigned int addr, unsigned int data)
-{
+void NativeWrapper::write_mem(unsigned int addr, unsigned int data) {
+	if (NativeWrapper::socket.write(addr, data) != tlm::TLM_OK_RESPONSE) {
+		std::cerr << "erreur de write mem native" << std::endl;
+	}
 }
 
-unsigned int NativeWrapper::read_mem(unsigned int addr)
-{
-	abort(); // TODO
+unsigned int NativeWrapper::read_mem(unsigned int addr) {
+	unsigned int localbuf = 0;
+	if (NativeWrapper::socket.read(addr, localbuf) != tlm::TLM_OK_RESPONSE){
+		std::cerr << "erreur de read meme native" << std::endl;
+	}
+	return localbuf;
 }
 
-void NativeWrapper::cpu_relax()
-{
-	abort(); // TODO
+void NativeWrapper::cpu_relax() {
+	wait(PERIOD);
 }
 
-void NativeWrapper::wait_for_irq()
-{
-	abort(); // TODO
+void NativeWrapper::wait_for_irq() {
+	main();
+	if (!interrupt)
+		wait(interrupt_event);
+	interrupt = false;
 }
 
-void NativeWrapper::compute()
-{
-	abort(); // TODO
+void NativeWrapper::compute() {
+	SC_THREAD(wait_for_irq);
+	SC_METHOD(interrupt_handler_internal);
+	sensitive << irq.pos();
 }
 
-void NativeWrapper::interrupt_handler_internal()
-{
+void NativeWrapper::interrupt_handler_internal() {
+	if (irq.posedge()) {
+		interrupt = true;
+		interrupt_event.notify();
+		interrupt_handler();
+	}
 }

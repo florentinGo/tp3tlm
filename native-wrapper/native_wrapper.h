@@ -27,7 +27,7 @@ public:
 
 	void compute();
 
-	void interrupt_handler_internal();
+	void interrupt_handler_internal(void);
 
 	bool              interrupt;
 	sc_core::sc_event interrupt_event;

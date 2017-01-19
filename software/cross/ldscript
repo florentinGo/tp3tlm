@@ -1,4 +1,4 @@
-MEMORY 
+MEMORY
 {
    bram : ORIGIN = 0x00000000, LENGTH = 0x00020000
 }
@@ -19,6 +19,5 @@ SECTIONS
                 *(.bss)
                 _BssEnd = . ;
         } > bram
-   /* TODO: find suitable address for stack, this one won't work */
 _stack_top  = 0x0001FFFC ;
 }

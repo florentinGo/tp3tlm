@@ -9,8 +9,7 @@
 #include "intc.h"
 #include "gpio.h"
 
-int sc_main(int, char**)
-{
+int sc_main(int, char**) {
 	NativeWrapper& cpu = *NativeWrapper::get_instance();
 	Memory inst_ram("inst_ram", INST_RAM_SIZE);
 	// Memory data_ram("Memory", SRAM_SIZE);

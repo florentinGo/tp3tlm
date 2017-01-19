@@ -17,7 +17,7 @@ static const sc_core::sc_time PERIOD(20, sc_core::SC_NS);
 
 using namespace std;
 
-void MBWrapper::switchIrq(void){
+void MBWrapper::switchIrq(void) {
 	if (irq.posedge())
 		m_iss.setIrq(true);
 }
@@ -44,7 +44,7 @@ void MBWrapper::exec_data_request(enum iss_t::DataAccessType mem_type,
 		/* The ISS requested a data read
 		   (mem_addr into localbuf). */
 		status = socket.read(mem_addr, localbuf);
-		if (status != tlm::TLM_OK_RESPONSE){
+		if (status != tlm::TLM_OK_RESPONSE) {
 			std::cerr << "erreur de read" << std::endl;
 		}
 		localbuf = uint32_machine_to_be(localbuf);
@@ -56,15 +56,14 @@ void MBWrapper::exec_data_request(enum iss_t::DataAccessType mem_type,
 		m_iss.setDataResponse(0, localbuf);
 	} break;
 	case iss_t::READ_BYTE: {
-		uint32_t pre_addr = (mem_addr - (mem_addr % 4));// (mem_addr / 4) * 4;
+		uint32_t pre_addr = (mem_addr - (mem_addr % 4));  // (mem_addr / 4) * 4;
 		status = socket.read(pre_addr, localbuf);
-		localbuf = uint32_machine_to_be(localbuf); //traitement qui suit se fait sur du litle-endian
-		localbuf = localbuf >> (mem_addr % 4) * 8; // décalage 8*n
-		localbuf = localbuf & 0x000000FF; // octet de poid faible
+		localbuf = uint32_machine_to_be(localbuf);  // traitement se fait sur du litle-endian
+		localbuf = localbuf >> (mem_addr % 4) * 8;  // décalage 8*n
+		localbuf = localbuf & 0x000000FF;  // octet de poid faible
 		if (status != tlm::TLM_OK_RESPONSE) {
 			std::cerr << "erreur de read_byte" << std::endl;
 		}
-
 #ifdef DEBUG
 		std::cout << hex << "read    " << setw(10) << localbuf
 		          << " at address " << mem_addr << std::endl;
@@ -103,13 +102,12 @@ void MBWrapper::exec_data_request(enum iss_t::DataAccessType mem_type,
 }
 
 void MBWrapper::run_iss(void) {
-
 	int inst_count = 0;
 	tlm::tlm_response_status status;
 	while (true) {
-		if (m_iss.isBusy())
+		if (m_iss.isBusy()) {
 			m_iss.nullStep();
-		else {
+		} else {
 			bool ins_asked;
 			uint32_t ins_addr;
 			m_iss.getInstructionRequest(ins_asked, ins_addr);
@@ -125,7 +123,6 @@ void MBWrapper::run_iss(void) {
 				}
 				localbuf = uint32_machine_to_be(localbuf);
 				m_iss.setInstruction(0, localbuf);
-
 			}
 
 			bool mem_asked;

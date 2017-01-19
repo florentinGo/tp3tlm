@@ -17,7 +17,7 @@ int get_pixel(uint32_t base_addr, int x, int y) {
 	uint32_t addr = base_addr +
 		ALIGN( (x / CHAR_BIT) + (y * (VGA_LINE / CHAR_BIT)) );
 	int bit = 31 - x % (sizeof(uint32_t) * CHAR_BIT);
-
+	
 	uint32_t data = read_mem(addr);
 	return (TEST_BIT(data, bit) != 0);
 }

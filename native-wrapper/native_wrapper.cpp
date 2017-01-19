@@ -43,8 +43,7 @@ NativeWrapper * NativeWrapper::get_instance() {
 }
 
 NativeWrapper::NativeWrapper(sc_core::sc_module_name name) : sc_module(name),
-							     irq("irq")
-{
+							     irq("irq") {
 	SC_THREAD(compute);
 	SC_METHOD(interrupt_handler_internal);
 	sensitive << irq.pos();
@@ -59,7 +58,7 @@ void NativeWrapper::write_mem(unsigned int addr, unsigned int data) {
 
 unsigned int NativeWrapper::read_mem(unsigned int addr) {
 	unsigned int localbuf = 0;
-	if (NativeWrapper::socket.read(addr, localbuf) != tlm::TLM_OK_RESPONSE){
+	if (NativeWrapper::socket.read(addr, localbuf) != tlm::TLM_OK_RESPONSE) {
 		std::cerr << "erreur de read meme native" << std::endl;
 	}
 	return localbuf;

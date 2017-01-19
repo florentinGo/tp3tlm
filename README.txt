@@ -1,5 +1,6 @@
 Pour l'évaluation des performances, il faut lancer en parallèle le natif et l'iss.
-En regardant la durée entre deux interruptions, on peut déterminer lequel est le plus rapide.
+
+* En regardant la durée entre deux interruptions, on peut déterminer lequel est le plus rapide.
 Pour le natif, on a obtenu l'échantillon suivant:
 40
 2684354640
@@ -23,5 +24,6 @@ Pour l'iss on a  l'échantillon suivant :
 24049744240
 27483026220
 Ce qui nous donne une moyenne de 3435376253 avec un ecart type de 5881266,203.
-
 Tout cela nous montre que le natif est plus rapide que l'iss, tout en étant plus précis.
+
+* De plus nous avons remarqué qu'en changeant la valeur de la constante <PERIOD> dans le wrapper de cet ISS, notre simulation ne fonctionnait plus correctement, alors qu'en faisant varier la période d'attente dans le wrapper du natif nous changions la période de rafraîchissement de cette dernière, ce qui nous permet de conclure que le wrapper natif permet d'accélérer la simulation.
